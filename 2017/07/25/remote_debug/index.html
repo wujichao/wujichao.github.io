@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>小程序真机调试探索 | Jichao Wu's Tech Notes</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/6.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-84228722-2','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">小程序真机调试探索</h1><a id="logo" href="/.">Jichao Wu's Tech Notes</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">小程序真机调试探索</h1><div class="post-meta">Jul 25, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>蘑菇直播小程序在上线前爆发了一系列兼容性问题, 比如 Video 控件在某些安卓手机的布局会跳来跳去, SKU组件在 iOS8 上显示不出来等等兼容性问题. 然而微信并没有一个真机调试的方法, 我们只能用不断打log, 删代码然后一行行加回去之类的原始方法去排查问题, 比如为了解决 SKU 组件在 iOS8 上显示不出来的问题, 我曾经反复打了三十几个包才找到问题. </p>
+<p>作为一个高贵的iOS工程师, 我相信这个问题一定有更好的解决办法, 就开始了我的探索.</p>
+<p>引用微信文档的一段介绍: </p>
+<p><em>在 iOS 上，小程序的 javascript 代码是运行在 JavaScriptCore 中，是由 WKWebView 来渲染的，环境有 iOS8、iOS9、iOS10</em></p>
+<p><em>在 Android 上，小程序的 javascript 代码是通过 X5 JSCore来解析，是由 X5 基于 Mobile Chrome 53 内核来渲染的</em></p>
+<p>所以我们要做的就是想办法通过调试 Webview 来调试页面布局, 通过调试 JSCore 来调试逻辑代码.</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>经过探索, 目前 iOS 上可以达到和开发者工具一样的效果, 即调试 JavaScriptCore 中的代码, 以及 inspect WKWebView 中的 DOM tree.</p>
+<p>而 Android 上, 目前只可以做到 inspect X5 中的 DOM tree, 还没有找到调试 X5 JSCore 中的代码的方法.</p>
+<p>效果图如下:</p>
+<p>图1 iOS 上 inspect DOM tree</p>
+<p><img src="http://ww2.sinaimg.cn/large/0060lm7Tgy1fhvzbf3u7qj31kw0vgdud.jpg" alt="Inspect DOM tree on iOS"></p>
+<p>图2 甚至可以用 Reveal 看 Native Layout (可以看到一个Native的VideoView盖在了Webview上)</p>
+<p><img src="http://ww3.sinaimg.cn/large/0060lm7Tgy1fhvz8anm57j31kw0zvgzy.jpg" alt="Reveal"></p>
+<p>图3 iOS 上给代码打断点</p>
+<p><img src="http://ww3.sinaimg.cn/large/0060lm7Tgy1fhvz89d5jij31ju14wqiu.jpg" alt="Set Breakpoints on iOS"></p>
+<p>图4  Andriod 上 inspect DOM tree</p>
+<p><img src="http://ww4.sinaimg.cn/large/0060lm7Tgy1fhvz8grjkyj31kw1064qp.jpg" alt="Inspect DOM tree on Android"></p>
+<h2 id="iOS真机调试的原理"><a href="#iOS真机调试的原理" class="headerlink" title="iOS真机调试的原理"></a>iOS真机调试的原理</h2><p>iOS因为有严格的权限, 只能调试被你自己的开发者证书签名的 App. 所以真机调试的原理就是欺骗 iOS 系统我们是 WeChat 这个 App 的开发者, 对 Wechat 用自己的开发者证书重签名, 然后我们就能对 WeChat 中的 Webview 进行调试了.</p>
+<p>重签名的操作过程比较复杂, 具体原理大家可以移步<a href="https://medium.com/@kennethpoon/hacking-the-pokemongo-ios-app-with-3-classes-4b81589a9f39#.wnf9rsx57" target="_blank" rel="external">这篇文章</a>进行了解.</p>
+<p>不过, 我们有<a href="http://weibo.com/ttarticle/p/show?id=2309404086977153611942" target="_blank" rel="external">IPAPatch</a>, 将这个流程自动化了, 缩减到只要添加一个砸过壳的ipa进去, 就能对这个ipa重签名. </p>
+<p>重签名之后, 就可以对 WeChat 里的 Webview 进行调试了, 然而 JSCore 里的代码还是无法调试, 死活找不到对应的脚本.</p>
+<p>经过多次尝试后, <a href="http://blog.csdn.net/colorapp/article/details/51059645" target="_blank" rel="external">这篇文章</a>启发了我, 只有当给 evaluateScript 传一个 source 参数, 这个 script 才会出现在 Safari DevTools 里的脚本列表里. 所以我们通过 method swizzling 给它加一个 source 参数就好.  </p>
+<p><img src="http://ww3.sinaimg.cn/large/0060lm7Tgy1fhvze4tzqjj30lo03bq41.jpg" alt="JSCore Debug"></p>
+<h2 id="iOS真机调试的教程"><a href="#iOS真机调试的教程" class="headerlink" title="iOS真机调试的教程"></a>iOS真机调试的教程</h2><p>流程虽然比较复杂, 但是我会提供一个整合好的工程, 只需要下载一个iOS工程, build &amp; run, 就能用了.</p>
+<p>Step By Step:</p>
+<ol>
+<li><p>下载工程<a href="http://s2.mogucdn.com/mlcdn/c45406/170724_35gg206814fae57hfbef38gk4bfd0.zip" target="_blank" rel="external">IPAPatch.zip</a>, 用 Xcode 打开 IPAPatch.xcodeproj</p>
+</li>
+<li><p>配置开发者证书, 从 Xcode7 之后, 不需要开发者账号, 一个普通的 AppleID 即可 <img src="http://ww1.sinaimg.cn/large/0060lm7Tgy1fhvzf4t6z7j30s50co0xx.jpg" alt=""></p>
+</li>
+<li><p>设置 -&gt; 通用 -&gt; 描述文件 -&gt; 信任你的证书</p>
+</li>
+<li><p>设置 -&gt; Safari -&gt; 高级 -&gt; Web检查器打开</p>
+</li>
+<li><p>调试页面的方法</p>
+<ol>
+<li><p>先使用重签名版的微信, 随便打开一个小程序</p>
+</li>
+<li><p>打开Mac上的Safari, 找到你的设备, 选择要调试的页面<img src="http://ww2.sinaimg.cn/large/0060lm7Tgy1fhvz8boow9j30xa0ewjwh.jpg" alt="Find page"></p>
+</li>
+<li><p>打开选中元素开关<img src="http://ww4.sinaimg.cn/large/0060lm7Tgy1fhvzgt6n6mj30uw0l6ahm.jpg" alt="Enable Inspect"></p>
+</li>
+<li><p>手机上随便点一个元素, 就可以 inspect 了.<img src="http://ww2.sinaimg.cn/large/0060lm7Tgy1fhvzbf3u7qj31kw0vgdud.jpg" alt="Inspect DOM tree on iOS"></p>
+</li>
+</ol>
+</li>
+<li><p>调试逻辑代码的方法</p>
+<ol>
+<li><p>找到你的设备, 选择JSContext<img src="http://ww1.sinaimg.cn/large/0060lm7Tgy1fhvz8a3iksj30wy0bmwi3.jpg" alt="Find JSContext"></p>
+</li>
+<li><p>在资源tab, 选中所有资源里面的 Script_wxAppData 这脚本, 就是我们的业务代码的 bundle 了, 使用 cmd+f 查找一个方法名, 比如 onTapImage, 然后设置断点即可. 注意这里不可以用 debugger 来设置断点, 因为 debugger 会在打包时被去掉.<img src="http://ww4.sinaimg.cn/large/0060lm7Tgy1fhvz8d2tpaj31ju14w1be.jpg" alt="Scripts"></p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="Android真机调试的教程"><a href="#Android真机调试的教程" class="headerlink" title="Android真机调试的教程"></a>Android真机调试的教程</h2><p>相比 iOS, Andorid 的方法比较简单. 使用腾讯 X5 的调试工具 TBS 即可.</p>
+<ol>
+<li><p>首先安装adb <a href="https://www.evernote.com/OutboundRedirect.action?dest=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F31374085%2Finstalling-adb-on-mac-os-x" target="_blank" rel="external">https://stackoverflow.com/questions/31374085/installing-adb-on-mac-os-x</a></p>
+</li>
+<li><p>Andorid手机需打开USB调试开发</p>
+</li>
+<li><p>确保使用命令 adb devices 可以看到你的设备</p>
+</li>
+<li><p>安装TBS, 打开TBS, 按照提示的步骤开启调试</p>
+</li>
+</ol>
+<p>最后在TBS中, 在Devices找到对应设备中的页面, 点击inspect, 即可调试页面</p>
+<p>不过我找了很久, 始终找不到调试X5的JSCore的办法, 只能放弃. </p>
+<p><img src="http://ww2.sinaimg.cn/large/0060lm7Tgy1fhvz867mc9j31bw10oguj.jpg" alt="TBS Devices"></p>
+<p><img src="http://ww4.sinaimg.cn/large/0060lm7Tgy1fhvz8grjkyj31kw1064qp.jpg" alt="Inspect DOM tree on Android"></p>
+<h2 id="Android真机调试逻辑代码的备注"><a href="#Android真机调试逻辑代码的备注" class="headerlink" title="Android真机调试逻辑代码的备注"></a>Android真机调试逻辑代码的备注</h2><p>安卓端的小程序逻辑代码是运行在 X5 JSCore 中的, 底层是v8, 根据官网上的版本号推算应该是5.3版本.</p>
+<p>而想要v8的5.6版本之前的版本实现调试, 必须由开发者自行实现它的调试协议, 才能被inspect, 和iOS的JSCore不一样. </p>
+<p>而实现调试协议成本应该挺大, 参考<a href="http://www.idom.me/articles/848.html" target="_blank" rel="external">这篇分享</a>, 所以看起来只能由微信官方来支持了. 咨询过微信的同学, 那边也在计划开发一套真机调试工具, 不过要打通两端的JSCore协议成本比较大, 时间可能会比较久.</p>
+<h2 id="END"><a href="#END" class="headerlink" title="END"></a>END</h2><p>最后希望微信官方可以加紧抹平两端差异,  从底层解决各种奇奇怪怪的兼容性问题, 以及提供一个官方的真机调试方法.</p>
+<p>本文链接地址: <a href="http://jichaowu.com/2017/07/25/remote_debug/">http://jichaowu.com/2017/07/25/remote_debug/</a>, 转载请标明出处.</p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://jichaowu.com/2017/07/25/remote_debug/" data-id="cj5tga9pq0001ifdlqz84lcxl" class="article-share-link">Share</a><div class="tags"></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://jichaowu.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/remote_debug/">小程序真机调试探索</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2017 <a href="/." rel="nofollow">Jichao Wu's Tech Notes.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
