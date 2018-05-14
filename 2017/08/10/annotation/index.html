@@ -1,0 +1,260 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Spring常用注解整理 | Jichao's Tech Notes</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/6.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/0.6.2/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-84228722-2','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Spring常用注解整理</h1><a id="logo" href="/.">Jichao's Tech Notes</a><p class="description"></p></div><div id="nav-menu"><a href="/." class="current"><i class="fa fa-home"> Home</i></a><a href="/archives/"><i class="fa fa-archive"> Archive</i></a><a href="/about/"><i class="fa fa-user"> About</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div id="layout" class="pure-g"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Spring常用注解整理</h1><div class="post-meta">Aug 10, 2017<script src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js" async></script><span id="busuanzi_container_page_pv"> | <span id="busuanzi_value_page_pv"></span><span> Hits</span></span></div><div class="post-content"><h3 id="1-Spring-IOC相关"><a href="#1-Spring-IOC相关" class="headerlink" title="1. Spring IOC相关"></a>1. Spring IOC相关</h3><ul>
+<li>IOC容器的使用分为注册bean和获取bean两大块:<ol>
+<li>注册bean: 通过注解注册一个bean有两种办法, 一种是给类加上@Component注解或其派生的@Controller, @Service, @Repository注解, 比较常用. 还有一种是使用@Configuration 搭配 @Bean注解, 常用在配置第三方提供的bean.</li>
+<li>获取bean: 通过@Autowired或@Resource<br><br></li>
+</ol>
+</li>
+<li>@Component 以及 其派生 @Controller, @Service, @Repository<ul>
+<li>位置: 注解在类上</li>
+<li>参数: 默认的bean的ID为首字母变为小写的类名</li>
+<li>作用: <ul>
+<li>@Component 相当于xml中的<bean></bean></li>
+<li>@Component的语义更广、更宽泛，而@Repository、@Service和@Controller的语义则更具体</li>
+<li>@Service, @Controller, @Repository = {@Component + some more special functionality}</li>
+<li><a href="https://stackoverflow.com/questions/6827752/whats-the-difference-between-component-repository-service-annotations-in" target="_blank" rel="noopener">更多参考</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Annotation</th>
+<th style="text-align:left">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">@Component</td>
+<td style="text-align:left">generic stereotype for any Spring-managed component</td>
+</tr>
+<tr>
+<td style="text-align:left">@Repository</td>
+<td style="text-align:left">stereotype for persistence layer                    </td>
+</tr>
+<tr>
+<td style="text-align:left">@Service</td>
+<td style="text-align:left">stereotype for service layer                        </td>
+</tr>
+<tr>
+<td style="text-align:left">@Controller</td>
+<td style="text-align:left">stereotype for presentation layer (spring-mvc)     </td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<ul>
+<li>@ComponentScan<ul>
+<li>用处: 注解在类上</li>
+<li>作用: @ComponentScan对应XML配置形式中的&lt;context: component-scan&gt;元素, 用于配合一些元信息 Java Annotation,比如@Component和@Repository等, 将标注了这些元信息 Annotation 的 bean 定义类批量采集到 Spring 的IoC容器中, 我们可以通过 basePackages等属性来细粒度地定制 @ComponentScan自动扫描的范围, 如果不指定, 则默认 Spring框架实现会从声明 @ComponentScan所在类的 package 进行扫描。<br><br></li>
+</ul>
+</li>
+<li>@Configuration 搭配 @Bean<ul>
+<li>@Configuration<ul>
+<li>位置: 注解在类上</li>
+<li>作用: 声明当前类是一个配置类，相当于一个Spring配置的xml文件, 任何POJO+@Configuration都是一个JavaConfig配置类。 @Configuration也是一个@Component</li>
+</ul>
+</li>
+<li>@Bean<ul>
+<li>位置: 注解在方法上</li>
+<li>作用: 声明当前方法的返回值为一个Bean。</li>
+<li><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TeslaServiceConfiguration</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span>(name = <span class="string">"userService"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserService <span class="title">userService</span><span class="params">()</span> <span class="keyword">throws</span> TeslaException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> TeslaServiceConsumerFactory.getTeslaServiceConsumer(UserService.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<ul>
+<li>@Autowired 搭配 @Qualifier 或者 @Resource<ul>
+<li>位置: 构造器, 方法, 属性等</li>
+<li>作用: Spring IOC容器会自动注入bean到这里.</li>
+<li>@Resource和@Autowired使用起来区别不大, @Autowired优先byType装配, @Resource优先byName装配, 更多<a href="http://www.dengshenyu.com/spring/2016/10/09/spring-inject.html" target="_blank" rel="noopener">参考这里</a></li>
+<li>@Autowired + @Qualifier(“foo”)  等同于 @Resource(name=”foo”)</li>
+<li><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FXNewsProvider</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span> </span><br><span class="line">    <span class="keyword">private</span> IFXNewsListener newsListener; </span><br><span class="line">    <span class="meta">@Autowired</span> </span><br><span class="line">    <span class="keyword">private</span> IFXNewsPersister newPersistener;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<ul>
+<li>Bean的生命周期  @Scope @PostConstruct 和 @PreDestroy <ul>
+<li>@Scope<ul>
+<li>位置: 与@Component或@Bean一起使用</li>
+<li>作用: 用于指定bean的作用域. </li>
+<li>例子: <ul>
+<li>@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)</li>
+<li>@Scope(“prototype”)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>生命周期的钩子<ul>
+<li>initMethod &amp; destroyMethod<ul>
+<li>位置: 与@Bean搭配使用</li>
+<li>作用: 指定bean的生命周期回调方法, bean实例化后, bean销毁前</li>
+<li>例子: @Bean(initMethod=”init”,destroyMethod=”destory”)</li>
+</ul>
+</li>
+<li>@PostConstruct &amp; @PreDestroy<ul>
+<li>位置: 与@Component搭配使用, 注解在方法上</li>
+<li>作用: 指定bean的生命周期回调方法, bean实例化后, bean销毁前</li>
+<li>例子: @PostConstruct public void init() {}</li>
+<li><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostConstruct</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"><span class="meta">@PreDestroy</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">stop</span><span class="params">()</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><br></p>
+<ul>
+<li>@Value<ul>
+<li>位置: 方法, 属性等</li>
+<li>作用: 注入Spring配置</li>
+<li>例子: @Value(“${env}”) private String env;<br><br></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-SpringMVC"><a href="#2-SpringMVC" class="headerlink" title="2. SpringMVC"></a>2. SpringMVC</h3><ul>
+<li>@Controller<ul>
+<li>位置: 注解在类上</li>
+<li>作用: 标明这个类是SpringMVC里面的Controller. @Controller也是一个@Component, 会自动被IoC容器管理</li>
+</ul>
+</li>
+<li>@RequestMapping<ul>
+<li>例子: @RequestMapping(value=”/hello”,method=RequestMethod.GET)</li>
+</ul>
+</li>
+<li>@RequestParam &amp; @PathVariable 做参数绑定<ul>
+<li>默认绑定<ul>
+<li>请求参数名和方法参数名一致</li>
+</ul>
+</li>
+<li>使用@RequestParam明确指定绑定关系<ul>
+<li>@RequestParam(value=”age” required=false)  required默认是true</li>
+</ul>
+</li>
+<li>@PathVariable<ul>
+<li>@RequestMapping(value=”users/{userId}”, method=RequestMethod.GET)</li>
+<li>foo(@PathVariable(“userId”) long userId)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>@RequestBody<ul>
+<li>添加 @RequestBody 后 Spring 会根据请求中的 Content-Type 头信息来选择合适的转换器, 将请求数据转为 Java 对象</li>
+<li>比如Content-Type是application/json, 那么就是 JSON -&gt; Model</li>
+</ul>
+</li>
+<li>@ResponseBody<ul>
+<li>添加 @ResponseBody 后 Spring 会根据请求中的 Accept 头信息来选择合适的转换器, Java 对象转化为客户端可接受的表述形式</li>
+<li>比如Accept头部信息包含“application/json”, 就是Model -&gt; JSON</li>
+</ul>
+</li>
+<li>@RestController<ul>
+<li>@RestController 等于 @Controller + 每个方法默认加@ResponseBody</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloController</span> </span>&#123;</span><br><span class="line">  <span class="meta">@RequestMapping</span>(<span class="string">"/hello"</span>)</span><br><span class="line">  <span class="function">String <span class="title">hello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Hello World!"</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-Spring-Boot相关"><a href="#3-Spring-Boot相关" class="headerlink" title="3. Spring Boot相关"></a>3. Spring Boot相关</h3><ul>
+<li>@SpringBootApplication<ul>
+<li>@Configuration<ul>
+<li>启动类标注了@Configuration之后,本身其实也是一个IoC容器的配置类</li>
+</ul>
+</li>
+<li>@EnableAutoConfiguration<ul>
+<li>从classpath中搜索所有META-INF/spring.factories配置文件, 加载配置到spring容器</li>
+<li>spring-boot-autoconfig</li>
+<li><a href="http://www.scienjus.com/spring-cloud-autoconfiguration/" target="_blank" rel="noopener">原理这里</a></li>
+</ul>
+</li>
+<li>@ComponentScan<ul>
+<li>参见前文</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-Spring-Cache"><a href="#4-Spring-Cache" class="headerlink" title="4. Spring Cache"></a>4. Spring Cache</h3><ul>
+<li>Spring提供了四个注解来声明缓存规则</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@Cacheable</td>
+<td>表明Spring在调用方法之前，首先应该在缓存中查找方法的返回值。如果这个值能够找到，就会 返回缓存的值。否则的话，这个方法就会被调用，返回值会放到缓存之中</td>
+</tr>
+<tr>
+<td>@CachePut</td>
+<td>表明Spring应该将方法的返回值放到缓存中。在方法的调用前并不会检查缓存，方法始终都会被 调用</td>
+</tr>
+<tr>
+<td>@CacheEvict</td>
+<td>表明Spring应该在缓存中清除一个或多个条目</td>
+</tr>
+<tr>
+<td>@Caching</td>
+<td>这是一个分组的注解，能够同时应用多个其他的缓存注解</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<ul>
+<li>@Cacheable注解有三个参数，value是必须的，还有key和condition。<ul>
+<li>value 第一个参数，也就是value指明了缓存将被存到什么地方。 (一个大容器里, 放了多个user-xxx)</li>
+<li>key 任何存储在缓存中的数据为了高速访问都需要一个key。Spring默认使用被@Cacheable注解的方法的签名来作为key，当然你可以重写key，自定义key可以使用SpEL表达式。</li>
+<li>condition SpEL表达式。但是这个参数将指明方法的返回结果是否被缓存。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CachePut</span>(value=<span class="string">"spittleCache"</span>, key=<span class="string">"#result.id"</span>) <span class="comment">// 缓存的 key 为返回对象的id属性                   </span></span><br><span class="line"><span class="function">Spittle <span class="title">save</span><span class="params">(Spittle spittle)</span> </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Cacheable</span>(value=<span class="string">"spittleCache"</span> </span><br><span class="line">    unless=<span class="string">"#result.message.contains('NoCache')"</span>  <span class="comment">//返回的Spittle对象中如果其message属性包含 NoCache, 则不放到缓存</span></span><br><span class="line">    condition=<span class="string">"#id &gt;= 10"</span> <span class="comment">//只有id &gt;= 10的才从缓存里找(既不希望将值添加到缓存中，也不希望从缓存中获取数据)</span></span><br><span class="line">) </span><br><span class="line"><span class="function">Spittle <span class="title">findOne</span><span class="params">(<span class="keyword">long</span> id)</span></span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@CacheEvict</span>(<span class="string">"spittleCache"</span>)</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">remove</span><span class="params">(<span class="keyword">long</span> spittleId)</span></span>&#123;&#125;  <span class="comment">//移除缓存, key默认是spittleId</span></span><br></pre></td></tr></table></figure>
+<h3 id="5-Test"><a href="#5-Test" class="headerlink" title="5. Test"></a>5. Test</h3><ul>
+<li>@Test<ul>
+<li>@Test注解标注这个方法需要测试</li>
+<li>例子<ul>
+<li>@Test</li>
+<li>public void testAdd(){}</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>@Before<ul>
+<li>所有的测试方法之前都先执行这个方法</li>
+<li>例子<ul>
+<li>@Before</li>
+<li>public void prepare(){}</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>@After<ul>
+<li>所有的测试方法之后都要执行这个方法</li>
+<li>例子<ul>
+<li>@After</li>
+<li>public void destroy(){}</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>还有@BeforeClass @AfterClass等注解<br><br></li>
+</ul>
+<p>参考:  Spring实战, Spring揭秘, <a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/package-summary.html" target="_blank" rel="noopener">官方文档</a>, <a href="http://blog.leanote.com/post/sheng91666@163.com/spring常用注解汇总" target="_blank" rel="noopener">Spring常用注解汇总</a></p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.0" async></script><a data-url="http://jichaowu.com/2017/08/10/annotation/" data-id="cjh5yh7d60000olresk5okm23" class="article-share-link">Share</a><div class="tags"></div><div class="post-nav"><a href="/2017/07/25/remote_debug/" class="next">小程序真机调试探索</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" class="search-form"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://jichaowu.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Categories</i></div></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Recent</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/10/annotation/">Spring常用注解整理</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/25/remote_debug/">小程序真机调试探索</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/07/19/iOS_memory_leak/">iOS 内存泄露问题实践</a></li></ul></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">Jichao's Tech Notes.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a id="rocket" href="#top" class="show"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.0.47/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
